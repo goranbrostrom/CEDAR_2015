@@ -1,52 +1,30 @@
 ---
 title: "Demography and Event History Analysis using R"
 author: "Göran Broström"
-date: '2015-06-18'
+date: '2015-10-01'
 output:
+  ioslides_presentation:
+    fig_height: 2.5
+    highlight: tango
   beamer_presentation:
     fig_height: 3
     highlight: tango
     keep_tex: yes
-  ioslides_presentation:
-    fig_height: 3
-    highlight: tango
   slidy_presentation:
     highlight: tango
 css: style.css
 ---
 
-## General
+## Outline
 
-* A two-weeks course, 1--12 June 2015.
-* 18 participants from nine countries
-
-```{r part, fig.height = 5,echo=FALSE}
-antal <- c(5, 4, 2, 2, rep(1, 5))
-names(antal) = c("SE", "IT", "DE", "NL", "ES",
-                 "HU", "JP", "PL", "UA")
-barplot(antal, xlab = "Country", 
-        ylab = "participants", col = rainbow(9))
-```
-
-* Teachers: GB, EL, MJ, JJ.
-* Guest lecturers: SE, GS, JV, WL 
-
-## The participants and teachers
-
-![alt participants](figures/IMG_1780.JPG)
-
-## General (cont'd)
-
-* Organized by
-    * The European Historical Population Samples Network (EHPS-Net), 
-    * The Graduate School in Population Dynamics and Public Policy (GSPDPP), and 
-    * the Centre for Demographic and Ageing Research (CEDAR) 
-* under the auspices of European Science Foundation (ESF). 
-* No tuition fee and some costs for participants were covered:
-     * The GSPDPP covered lodging costs for all participants,
-     * The ESF provided scholarships (for travel). 
-            Given to five participants.
-
+* The summer course 1-12 June 2015
+    + http://capa.ddb.umu.se/rr
+    + https://github.com/goranbrostrom/cedar
+* Ignoring the <font color="red">matching</font> in the analysis of matched data.
+*  What is the Hauck-Donner effect?
+* R markdown
+* git and gitHub.
+    
 ## Why R?
 
 1. R is *free*.
@@ -55,12 +33,7 @@ barplot(antal, xlab = "Country",
 2. R is open-source
 3. R has over 6000 add-on packages
 4. R will be the world leading statistical software.
-
-## Number of R packages on CRAN
-
-![alt R growth](figures/fig_9_cran.png) 
-
-Source: http://r4stats.com
+    * More than 7000 packeges on CRAN
 
 ## Why RStudio?
 
@@ -74,223 +47,7 @@ Literate programming:
     * GitHub:   
     [cedar](http://github.com/goranbrostrom/cedar/)
    
-<!--   
-```{r part2, fig.height = 5,echo=TRUE,eval=FALSE}
-antal <- c(5, 4, 2, 2, rep(1, 5))
-names(antal) = c("SE", "IT", "DE", "NL", "ES",
-                 "HU", "JP", "PL", "UA")
-barplot(antal, xlab = "Country", 
-        ylab = "Participants", col = rainbow(9))
-```
--->
 
-## More information
-
-Navigate to course home page   
-
-[http://capa.ddb.umu.se/cedar15](http://capa.ddb.umu.se/cedar15)
-
-## Statistical issues
-
-1. Interactions
-    * centering
-    * Presentation of results
-2. Omitted covariates in PH regression
-3. Causality and matching
-4. The Hauck-Donner effect
-
-## Interaction
-
-Data from Skellefteå: Old age mortality, ses and birthdate with interaction
-
-```{r interact, echo=FALSE,message=FALSE}
-library(eha)
-fit0 <- coxph(Surv(enter, exit, event) ~ ses * birthdate, 
-             data = mort)
-knitr::kable(summary(fit0)$coef[, c(1, 2, 3, 5)], digits = 3)
-```
-
-## Center birthdate around 1810
-
-```{r interactcent, echo=TRUE,message=FALSE}
-mort$birthdate <- mort$birthdate - 1810
-```
-
-```{r iancpr,echo=FALSE}
-fit1 <- coxph(Surv(enter, exit, event) ~ ses * birthdate, 
-             data = mort)
-knitr::kable(summary(fit1)$coef[, c(1, 2, 3, 5)], digits = 3)
-knitr::kable(drop1(fit1, test = "Chisq"), digits = 4)
-```
-
-
-## No interaction
-
-```{r nointeractcent, echo=FALSE,message=FALSE}
-
-fit <- coxph(Surv(enter, exit, event) ~ ses + birthdate, 
-             data = mort)
-knitr::kable(summary(fit)$coef[, c(1, 2, 3, 5)], digits = 3)
-knitr::kable(drop1(fit, test = "Chisq"), digits = 4)
-```
-
-## Effect of upper vs. lower SES, no centering (log scale)
-
-```{r pres1log4, echo = FALSE,fig.height = 6}
-bd <- seq(0, 1820, length = 1000)
-low <- fit0$coef[2] * bd
-high <- fit0$coef[1] + low + fit0$coef[3] * bd
-plot(bd, high - low, type = "l", xlim = c(0, 1820), col = "red", xlab = "Birth Year", ylab = "Log relative risk (upper)", axes = FALSE)
-axis(1, at = c(0, 1000, 1800, 1820))
-axis(2)
-box()
-abline(v = 0)
-abline(v = c(1800, 1820), lty = 2)
-##lines(bd, high, col = "blue")
-```
-
-## Effect of upper vs. lower SES, no centering
-
-```{r pres1next, echo = FALSE,fig.height = 6}
-bd <- seq(0, 1820, length = 1000)
-low <- fit0$coef[2] * bd
-high <- fit0$coef[1] + low + fit0$coef[3] * bd
-plot(bd, exp(high - low), type = "l", xlim = c(0, 1820), col = "red", xlab = "Birth Year", ylab = "relative risk (upper)", axes = FALSE)
-axis(1, at = c(0, 1000, 1800, 1820))
-axis(2, at = c(0, 0.5, round(max(exp(high - low)), 2)))
-box()
-abline(h = 0, v = 0)
-abline(v = c(1800, 1820), lty = 2)
-##lines(bd, high, col = "blue")
-```
-
-## Effect of upper vs. lower SES, with centering (log scale)
-
-```{r pres1log2, echo = FALSE,fig.height = 6}
-bd <- seq(1800, 1820, length = 1000)
-low <- fit0$coef[2] * bd
-high <- fit0$coef[1] + low + fit0$coef[3] * bd
-plot(bd, high - low, type = "l", xlim = c(1800, 1820), col = "red", xlab = "Birth Year", ylab = "Log relative risk (upper)", axes = FALSE)
-axis(1, at = c(1800, 1810, 1820))
-axis(2, at = c(-0.8, round(fit1$coef[1], 2), -0.3))
-box()
-abline(v = 1810, lty = 2)
-abline(h = round(fit1$coef[1], 2), lty = 2)
-##lines(bd, high, col = "blue")
-```
-
-## Effect of upper vs. lower SES, with centering
-
-```{r pres12, echo = FALSE,fig.height = 6}
-bd <- seq(1800, 1820, length = 1000)
-low <- fit0$coef[2] * bd
-high <- fit0$coef[1] + low + fit0$coef[3] * bd
-plot(bd, exp(high - low), type = "l", xlim = c(1800, 1820), col = "red", xlab = "Year", ylab = "relative risk (upper)", axes = FALSE)
-axis(1, at = c(1800, 1810, 1820))
-axis(2, at = c(0, round(exp(fit1$coef[1]), 2), round(max(exp(high - low)), 2)))
-box()
-abline(v = 1810, lty = 2)
-abline(h = exp(fit1$coef[1]), lty = 2)
-##lines(bd, high, col = "blue")
-```
-
-
-<!--
-## Effect of upper vs. lower SES, no centering (log scale)
-
-```{r pres1log3, echo = FALSE,fig.height = 6}
-bd <- seq(0, 1820, length = 1000)
-low <- fit0$coef[2] * bd
-high <- fit0$coef[1] + low + fit0$coef[3] * bd
-plot(bd, high - low, type = "l", xlim = c(0, 1820), col = "red", xlab = "Year", ylab = "Log relative risk (upper)", axes = FALSE)
-axis(1, at = c(0, 1000, 1800, 1820))
-axis(2)
-box()
-abline(v = 0)
-abline(v = c(1800, 1820), lty = 2)
-##lines(bd, high, col = "blue")
-```
-
-## Effect of upper vs. lower SES, no centering
-
-```{r pres1, echo = FALSE,fig.height = 6}
-bd <- seq(0, 1820, length = 1000)
-low <- fit0$coef[2] * bd
-high <- fit0$coef[1] + low + fit0$coef[3] * bd
-plot(bd, exp(high - low), type = "l", xlim = c(0, 1820), col = "red", xlab = "Year", ylab = "relative risk (upper)", axes = FALSE)
-axis(1, at = c(0, 1000, 1800, 1820))
-axis(2, at = c(0, 0.5, max(exp(high - low))))
-box()
-abline(h = 0, v = 0)
-abline(v = c(1800, 1820), lty = 2)
-##lines(bd, high, col = "blue")
-```
-
--->
-
-## Omitted covariates, example
-
-```{r simdata, echo=FALSE}
-source("R/sim.R")
-dat <- sim()
-dat$enter <- NULL
-names(dat) <- c("time", "death", "gender", "civ")
-dat$death <- as.logical(dat$death)
-dat$gender <- factor(dat$gender, labels = c("woman", "man"))
-dat$civ <- factor(dat$civ, labels = c("married", "unmarried"))
-knitr::kable(head(dat))
-```
-
-## Summary data
-
-Counts:
-
-```{r sumdat, echo=FALSE}
-knitr::kable(with(dat, table(gender, civ)))
-```
-
-Mean remaining life times (after 60):
-
-```{r meanexp, echo = FALSE}
-T <- matrix(0, ncol = 2, nrow = 2)
-T[1, 1] <- mean(dat$time[dat$gender == "woman" & dat$civ =="married"])
-T[1, 2] <- mean(dat$time[dat$gender == "woman" & dat$civ =="unmarried"])
-T[2, 1] <- mean(dat$time[dat$gender == "man" & dat$civ =="married"])
-T[2, 2] <- mean(dat$time[dat$gender == "man" & dat$civ =="unmarried"])
-colnames(T) <- c("married", "unmarried")
-rownames(T) <- c("woman", "man")
-knitr::kable(T, digits = 2)
-```
-
-## Analysis
-
-```{r analy, echo = FALSE, results = 'asis', message=FALSE}
-fit.gender <- coxreg(Surv(time, death) ~ gender, data = dat)
-fit.both <- coxreg(Surv(time, death) ~ gender + civ, data = dat)
-library(stargazer)
-stargazer(fit.gender, fit.both)
-```
-
-## Infant and maternal mortality {.smaller}
-
-Matched, left-truncated data (four first rows):
-```{r sevenp, echo=FALSE,results='asis'}
-library(eha)
-##library(xtable)
-knitr::kable(head(infants[, 1:5], 4))
-knitr::kable(head(infants[, 6:11], 4))
-```
-
-##  The analysis
-
-Stratify!
-
-```{r strat, echo=TRUE,results='asis'}
-fit <- coxreg(Surv(enter, exit, event) ~ mother + 
-                  strata(stratum), data = infants)
-dr <- drop1(fit, test = "Chisq")
-ltx(fit, dr = dr, digits=4)
-```
 
 ## The two-sample problem (example)
 
