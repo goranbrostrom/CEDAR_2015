@@ -1,0 +1,102 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{hyperref}
+\newcommand{\emp}[1]{\textcolor{blue}{#1}}
+
+\usetheme{Singapore}% best choice.
+  \setbeamercovered{transparent}%
+
+\newcommand{\R}{{\bf R}}
+\newcommand{\code}[1]{{\tt #1}}
+
+\title{Demography and Event History Analysis}
+\subtitle{using R and RStudio}
+\author{Göran Broström}
+\date{1 October 2015}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}[fragile]{Outline}
+
+\begin{itemize}
+\item The summer course 1--12 June 2015
+    \begin{itemize}
+    \item \url{http://capa.ddb.umu.se/rr}
+    \item \url{https://github.com/goranbrostrom/cedar}
+    \end{itemize}
+\item Why? 
+\item Statistical issues
+\begin{itemize}
+\item Ignoring the \emp{matching} in the analysis of matched data.
+\item  What is the \emp{Hauck-Donner} effect?
+\end{itemize}
+\item R markdown
+\item git and gitHub.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Why R?}
+
+\begin{enumerate}
+\item R is \emp{free}.
+   \begin{itemize}
+    \item as in free \emp{beer}
+    \item as in free \emp{research}
+    \end{itemize}
+\R\ is \emp{simply yours}!     
+\item R is open-source
+\item R has over 7\,000 add-on packages
+\item \R\ is the world leading statistical software.
+\end{enumerate}
+
+\R\ started around 1990, but its root, 
+\begin{itemize}
+\item {\bf S} started in the beginning of 1980's
+at \emp{Bell Laboratories}, USA.
+\item {\bf S} is closely related to {\bf C} and \emp{\sc Unix}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Why RStudio?}
+
+Literate programming (Knuth, 1984):
+
+\begin{itemize}
+\item \emp{Dynamic} report (paper) writing, programming, and 
+documentation \emp{in one}.
+
+\item Automates \emp{reproducible research}.
+
+\item Easy to combine with \emp{version control}.
+   \begin{itemize}
+    \item GitHub:   
+    \url{http://github.com/goranbrostrom/}
+\end{itemize}
+\item Delivers \emp{R markdown}
+\item Founded in \emp{2008}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Why Event History Analysis?}
+
+\begin{itemize}
+\item Because we are interested in \emp{dynamic processes} (evolving over time).
+\item We have \emp{individual} life histories.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Why Demography?}
+
+Because it is so \emp{fascinating!}
+
+\end{frame}
+
+\end{document}
