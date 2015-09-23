@@ -99,4 +99,215 @@ Because it is so \emp{fascinating!}
 
 \end{frame}
 
+\begin{frame}[fragile]{A two-sample problem}
+
+<<whyma, echo=FALSE, fig.height=4.5>>=
+set.seed(12135)
+X <- rnorm(10, mean = 6, sd = 10)
+Y <- X + rnorm(10, mean = 6, sd = 1)
+plot(1:10, X, col = "red", xlim = c(0, 21), ylim = c(min(X, Y), max(X, Y)),
+     xlab = "Index", ylab = "Y")
+points(11:20, Y, col = "blue")
+@
+
+Statistically \emp{significant} difference\emp{?}
+\end{frame}
+
+\begin{frame}[fragile]{The $t$-test}
+
+<<ttest>>=
+t.test(X, Y)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Linear regression}
+
+<<linreg, results = 'asis'>>=
+library(xtable)
+dat <- data.frame(Y = c(Y, X), 
+                  group = as.integer(
+                      c(rep(1, 10), rep(2, 10))
+                      )
+                  )
+fit <- lm(Y ~ group, data = dat)
+xtable(summary(fit)$coefficients, digits = 4)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Data are paired!}
+
+<<pairda, echo = FALSE, fig.height = 4.5>>=
+plot(1:10, X, col = "red", xlim = c(0, 21), ylim = c(min(X, Y), max(X, Y)),
+     xlab = "", ylab = "Y")
+points(11:20, Y, col = "blue")
+for (i in 1:10){
+    lines(c(i, i + 10), c(X[i], Y[i]), lty = 2)
+}
+@
+
+Significant differences?
+
+\end{frame}
+
+\begin{frame}[fragile]{The paired $t$-test}
+
+<<pairedt>>=
+t.test(X, Y, paired = TRUE)
+@
+
+\end{frame}
+\begin{frame}[fragile]{The paired data frame}
+
+<<paired, message = FALSE, results='asis'>>=
+dat$id <- rep(1:10, 2)
+library(dplyr)
+dat <- arrange(dat, id, group)
+dat$group <- as.integer(dat$group)
+xtable(head(dat, 5), digits = 4)
+@
+\end{frame}
+
+\begin{frame}[fragile]{A random effects model}
+\scriptsize
+<<ranef, messages=FALSE, results='asis'>>=
+library(lme4)
+fit <- lmer(Y ~ group + (1 | id), data = dat)
+xtable(summary(fit)$coefficients, digits = 4)
+@
+
+Exactly the \emp{same} result \emp{as the paired $t$-test!}
+
+\vspace{\baselineskip}
+
+The \emp{sign} test: $p = 2 * .5^10 = \emp{0.00195}$ (two-sided)
+
+\end{frame}
+
+\begin{frame}[fragile]{"Perfect linearity"}
+
+<<perfplot1, echo=FALSE, fig.height=3.5>>=
+par(fin=c(3.5, 3.5))
+dat1 = data.frame(T = 1:10, x = c(1:10), event = rep(1, 10))
+dat1 = arrange(dat1, x)
+with(dat1, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim = c(0, 10)))
+@
+
+\begin{enumerate}
+\item \emp{Linear regression}: $T = \beta x + \epsilon\;$ \hspace{1in} \emp{$\hat{\beta} = ?$}
+\item \emp{Cox regression}: $h(t, x) = \exp(\beta x)\;$  \hspace{0.78in}  \emp{$\hat{\beta} = ?$}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Analysis}
+
+\scriptsize
+<<anal, results='asis',warning=FALSE,message=FALSE>>=
+library(eha)
+f1 <- lm(T ~ x, data = dat1)
+xtable(summary(f1)$coefficients, digits = 3)
+f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat1)
+ltx(f2)
+@
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Analysis II}
+
+\scriptsize
+<<anal2, results='asis',warning=FALSE,message=FALSE>>=
+library(eha)
+xtable(summary(f1)$coefficients, digits = 3)
+f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat1)
+dr <- drop1(f2, test = 'Chisq')
+ltx(f2, dr = dr)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{"Perfect linearity", answer}
+
+<<perfplot2, echo=FALSE, fig.height=3.5>>=
+par(fin=c(3.5, 3.5))
+dat1 = data.frame(T = 1:10, x = c(1:10), event = rep(1, 10))
+dat1 = arrange(dat1, x)
+with(dat1, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim = c(0, 10)))
+@
+
+\begin{enumerate}
+\item \emp{Linear regression}: $T = \beta x + \epsilon$ \hspace{1in} \emp{$\hat{\beta} = 1$}
+\item \emp{Cox regression}: $h(t, x) = \exp(\beta x)$    \hspace{0.78in} \emp{$\hat{\beta} = -\infty$}
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}[fragile]{The Hauck-Donner effect}
+
+<<hdplot, echo=FALSE, fig.height=3.5>>=
+par(fin=c(3.5, 3.5))
+dat2 = data.frame(T = 1:10, x = c(1:4, 6.2, 5.8, 7:10), event = rep(1, 10))
+##dat2 = arrange(dat2, x)
+with(dat2, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim = c(0, 10)))
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Analysis III}
+
+\scriptsize
+<<anal3, results='asis',warning=FALSE,message=FALSE>>=
+library(eha)
+f1 <- lm(T ~ x, data = dat2)
+xtable(summary(f1)$coefficients, digits = 3)
+f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat2)
+ltx(f2)
+@
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Analysis IV}
+
+\scriptsize
+<<anal4, results='asis',warning=FALSE,message=FALSE>>=
+library(eha)
+xtable(summary(f1)$coefficients, digits = 4)
+f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat2)
+dr2 <- drop1(f2, test = "Chisq")
+ltx(f2, dr = dr, digits = 4)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{A graphical explanation}
+
+<<graphexp1, echo = FALSE, fig.height = 5>>=
+source("R/koll1.R")
+res <- koll1()
+@
+
+\end{frame}
+
+
+\begin{frame}[fragile]{A graphical explanation}
+
+<<graphexp2, echo = FALSE, fig.height = 5>>=
+source("R/koll2.R")
+res <- koll2()
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Version!}
+
+\tiny
+
+<<version, echo = FALSE>>=
+devtools::session_info()
+@
+
+\end{frame}
 \end{document}
