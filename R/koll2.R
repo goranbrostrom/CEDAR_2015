@@ -12,7 +12,7 @@ koll2 <- function(antrep = 100){
       dat$offs <- b[i] * dat$x
       ll[i] = coxreg(Surv(T, event) ~ offset(offs), data = dat)$loglik[1]
    }
-   plot(b, ll, type = "l", axes = FALSE, xlab = "beta", ylab = "loglihood", 
+   plot(b, ll, type = "l", axes = FALSE, xlab = expression(beta), ylab = "loglihood", 
         ylim = c(-17, 0), lwd = 1.5)
    axis(1, at = c(round(beta, 2), 0))
    axis(2, at = c(round(ll0, 2), round(llmax, 2)))
