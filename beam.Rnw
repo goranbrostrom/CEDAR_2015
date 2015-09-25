@@ -181,7 +181,7 @@ Exactly the \emp{same} result \emp{as the paired $t$-test!}
 
 \vspace{\baselineskip}
 
-The \emp{sign} test: $p = 2 * .5^10 = \emp{0.00195}$ (two-sided)
+The \emp{sign} test: $p = 2 * .5^{10} = \emp{0.00195}$ (two-sided)
 
 \end{frame}
 
@@ -196,7 +196,7 @@ with(dat1, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim =
 
 \begin{enumerate}
 \item \emp{Linear regression}: $T = \beta x + \epsilon\;$ \hspace{1in} \emp{$\hat{\beta} = ?$}
-\item \emp{Cox regression}: $h(t, x) = \exp(\beta x)\;$  \hspace{0.78in}  \emp{$\hat{\beta} = ?$}
+\item \emp{Cox regression}: $h(t, x) = h_0(t) \exp(\beta x)\;$  \hspace{0.42in}  \emp{$\hat{\beta} = ?$}
 \end{enumerate}
 \end{frame}
 
@@ -306,7 +306,8 @@ res <- koll2()
 \tiny
 
 <<version, echo = FALSE>>=
-devtools::session_info()
+#devtools::session_info()
+sessionInfo()
 @
 
 \end{frame}
