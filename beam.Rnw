@@ -25,11 +25,8 @@
 \begin{frame}[fragile]{Outline}
 
 \begin{itemize}
-\item The summer course 1--12 June 2015
-    \begin{itemize}
-    \item \url{http://capa.ddb.umu.se/rr}
-    \item \url{https://github.com/goranbrostrom/cedar}
-    \end{itemize}
+\item The \emp{cedaR Foundation}
+\item The \emp{summer course} 1--12 June 2015
 \item Why? 
 \item Statistical issues
 \begin{itemize}
@@ -42,25 +39,54 @@
 
 \end{frame}
 
+\begin{frame}{The cedaR Foundation}
+
+\begin{itemize}
+\item is working in the interest of promoting scientifically sound statistical methods for the analysis of demographic data at the \emp{CEDAR}, involving emphazis on
+\begin{itemize}
+\item reproducibe research and report writing,
+\item version control, and
+\item development of {\bf R} packages for standard demographic analyses.
+\item Regularly recurring seminars and lectures.
+\end{itemize}
+\item Web page: \url{http://capa.ddb.umu.se/cedaR/}
+\item Today the members of \emp{cedaR} are Erling and Göran
+\item You are all welcome to participate.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{The summer course 2015}
+
+See the material at
+
+\begin{itemize}
+\item \url{http://capa.ddb.umu.se/rr/}
+\item \url{https://github.com/goranbrostrom/cedar/}
+\end{itemize}
+
+\end{frame}
+
+
 \begin{frame}{Why R?}
 
 \begin{enumerate}
-\item R is \emp{free}.
+\item \R\ is \emp{free}.
    \begin{itemize}
     \item as in free \emp{beer}
     \item as in free \emp{research}
     \end{itemize}
 \R\ is \emp{simply yours}!     
-\item R is open-source
-\item R has over 7\,000 add-on packages
-\item \R\ is the world leading statistical software.
+\item \R\ is open-source
+\item \R\ has over \emp{7\,000} add-on packages
+\item \R\ is the \emp{world leading} statistical software.
 \end{enumerate}
 
-\R\ started around 1990, but its root, 
+\R\ started around 1990, but its root, \emp{\bf S} 
 \begin{itemize}
-\item {\bf S} started in the beginning of 1980's
+\item started in the beginning of 1980's
 at \emp{Bell Laboratories}, USA.
-\item {\bf S} is closely related to {\bf C} and \emp{\sc Unix}.
+\item is closely related to the development of \emp{\bf C} and \emp{\sc Unix}.
 \end{itemize}
 \end{frame}
 
@@ -123,13 +149,21 @@ t.test(X, Y)
 
 \begin{frame}[fragile]{Linear regression}
 
+\scriptsize
 <<linreg, results = 'asis'>>=
 library(xtable)
 dat <- data.frame(Y = c(Y, X), 
-                  group = as.integer(
-                      c(rep(1, 10), rep(2, 10))
-                      )
+                  group = as.factor(c(rep("control", 10), rep("treated", 10)))
                   )
+xtable(head(dat, 2))
+xtable(tail(dat, 2))
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Result of linear regression}
+
+<<reslin, results='asis'>>=
 fit <- lm(Y ~ group, data = dat)
 xtable(summary(fit)$coefficients, digits = 4)
 @
@@ -164,7 +198,7 @@ t.test(X, Y, paired = TRUE)
 dat$id <- rep(1:10, 2)
 library(dplyr)
 dat <- arrange(dat, id, group)
-dat$group <- as.integer(dat$group)
+##dat$group <- as.integer(dat$group)
 xtable(head(dat, 5), digits = 4)
 @
 \end{frame}
@@ -178,6 +212,16 @@ xtable(summary(fit)$coefficients, digits = 4)
 @
 
 Exactly the \emp{same} result \emp{as the paired $t$-test!}
+
+\end{frame}
+
+\begin{frame}[fragile]{A fixed effects model}
+
+\scriptsize
+<<fixef, results = 'asis'>>=
+fit <- lm(Y ~ group + as.factor(id), data = dat)
+xtable(summary(fit)$coefficients, digits = 4)
+@
 
 \vspace{\baselineskip}
 
@@ -204,9 +248,9 @@ with(dat1, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim =
 
 \scriptsize
 <<anal, results='asis',warning=FALSE,message=FALSE>>=
-library(eha)
 f1 <- lm(T ~ x, data = dat1)
 xtable(summary(f1)$coefficients, digits = 3)
+library(eha)
 f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat1)
 ltx(f2)
 @
@@ -214,14 +258,14 @@ ltx(f2)
 \end{frame}
 
 
-\begin{frame}[fragile]{Analysis II}
+\begin{frame}[fragile]{The Likelihood Ratio Test}
 
 \scriptsize
 <<anal2, results='asis',warning=FALSE,message=FALSE>>=
-library(eha)
-xtable(summary(f1)$coefficients, digits = 3)
-f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat1)
+##xtable(summary(f1)$coefficients, digits = 3)
+##f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat1)
 dr <- drop1(f2, test = 'Chisq')
+xtable(dr)
 ltx(f2, dr = dr)
 @
 
@@ -258,7 +302,6 @@ with(dat2, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim =
 
 \scriptsize
 <<anal3, results='asis',warning=FALSE,message=FALSE>>=
-library(eha)
 f1 <- lm(T ~ x, data = dat2)
 xtable(summary(f1)$coefficients, digits = 3)
 f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat2)
@@ -273,9 +316,7 @@ ltx(f2)
 
 \scriptsize
 <<anal4, results='asis',warning=FALSE,message=FALSE>>=
-library(eha)
 xtable(summary(f1)$coefficients, digits = 4)
-f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat2)
 dr2 <- drop1(f2, test = "Chisq")
 ltx(f2, dr = dr, digits = 4)
 @
@@ -301,6 +342,21 @@ res <- koll2()
 
 \end{frame}
 
+\begin{frame}[fragile]{The \code{sweden14} \R\ package}
+
+\begin{itemize}
+\item Sweden 1969--2014
+\item \emp{Population} by age, sex, and year,
+\item \emp{Births} by mother's age, infant's sex, and year,
+\item \emp{Deaths} by age, sex, and year, and
+\item \emp{Net inmigration} by age, sex, and year.
+\item \emp{Extraction} functions.
+\end{itemize}
+
+\url{https://github.com/goranbrostrom/sweden14/}
+
+
+\end{frame}
 \begin{frame}[fragile]{Version!}
 
 \tiny
@@ -311,4 +367,6 @@ sessionInfo()
 @
 
 \end{frame}
+
+
 \end{document}
