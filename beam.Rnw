@@ -29,12 +29,10 @@
 \item The \emp{summer course} 1--12 June 2015
 \item Why? 
 \item Statistical issues
-\begin{itemize}
-\item Ignoring the \emp{matching} in the analysis of matched data.
-\item  What is the \emp{Hauck-Donner} effect?
-\end{itemize}
-\item R markdown
-\item git and gitHub.
+\item Demography
+\item Event History Analysis
+%\item R markdown
+%\item git and gitHub.
 \end{itemize}
 
 \end{frame}
@@ -80,6 +78,10 @@ See the material at
 \item \R\ is open-source
 \item \R\ has over \emp{7\,000} add-on packages
 \item \R\ is the \emp{world leading} statistical software.
+\item The \emp{\R\ Consortium}:
+\begin{itemize}
+\item \url{https://r-consortium.org}
+\end{itemize}
 \end{enumerate}
 
 \R\ started around 1990, but its root, \emp{\bf S} 
@@ -88,6 +90,12 @@ See the material at
 at \emp{Bell Laboratories}, USA.
 \item is closely related to the development of \emp{\bf C} and \emp{\sc Unix}.
 \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{To fully understand \ldots}
+\begin{center}
+\includegraphics{index.jpg}
+\end{center}
 \end{frame}
 
 \begin{frame}{Why RStudio?}
@@ -121,10 +129,17 @@ documentation \emp{in one}.
 
 \begin{frame}{Why Demography?}
 
-Because it is so \emp{fascinating!}
+Because it is so \emp{fascinating} and \emp{fun}!
 
 \end{frame}
 
+\begin{frame}{Statistical issues}
+\begin{itemize}
+\item Ignoring the \emp{matching} in the analysis of matched data.
+\item  What is the \emp{Hauck-Donner} effect?
+\end{itemize}
+
+\end{frame}
 \begin{frame}[fragile]{A two-sample problem}
 
 <<whyma, echo=FALSE, fig.height=4.5>>=
@@ -155,8 +170,8 @@ library(xtable)
 dat <- data.frame(Y = c(Y, X), 
                   group = as.factor(c(rep("control", 10), rep("treated", 10)))
                   )
-xtable(head(dat, 2))
-xtable(tail(dat, 2))
+xtable(head(dat, 3))
+xtable(tail(dat, 3))
 @
 
 \end{frame}
@@ -223,9 +238,17 @@ fit <- lm(Y ~ group + as.factor(id), data = dat)
 xtable(summary(fit)$coefficients, digits = 4)
 @
 
-\vspace{\baselineskip}
+\end{frame}
 
+\begin{frame}[fragile]{The sign test (recommended)}
 The \emp{sign} test: $p = 2 * .5^{10} = \emp{0.00195}$ (two-sided)
+
+Or, with \R,
+
+\scriptsize
+<<binomtest>>=
+binom.test(0, 10)
+@
 
 \end{frame}
 
@@ -262,8 +285,6 @@ ltx(f2)
 
 \scriptsize
 <<anal2, results='asis',warning=FALSE,message=FALSE>>=
-##xtable(summary(f1)$coefficients, digits = 3)
-##f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat1)
 dr <- drop1(f2, test = 'Chisq')
 xtable(dr)
 ltx(f2, dr = dr)
@@ -289,6 +310,8 @@ with(dat1, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim =
 
 \begin{frame}[fragile]{The Hauck-Donner effect}
 
+Not so perfect linearity:
+
 <<hdplot, echo=FALSE, fig.height=3.5>>=
 par(fin=c(3.5, 3.5))
 dat2 = data.frame(T = 1:10, x = c(1:4, 6.2, 5.8, 7:10), event = rep(1, 10))
@@ -296,6 +319,7 @@ dat2 = data.frame(T = 1:10, x = c(1:4, 6.2, 5.8, 7:10), event = rep(1, 10))
 with(dat2, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim = c(0, 10)))
 @
 
+Hauck \& Donner (1977). \emph{JASA} {\bf 72}, pp.\ 851--853.
 \end{frame}
 
 \begin{frame}[fragile]{Analysis III}
@@ -305,7 +329,7 @@ with(dat2, plot(x, T, type = "b", col = "blue", lty = 2, ylim = c(0, 10), xlim =
 f1 <- lm(T ~ x, data = dat2)
 xtable(summary(f1)$coefficients, digits = 3)
 f2 <- coxreg(Surv(T, rep(1, 10)) ~ x, data = dat2)
-ltx(f2)
+ltx(f2, digits = 4)
 @
 
 \end{frame}
@@ -345,7 +369,7 @@ res <- koll2()
 \begin{frame}[fragile]{The \code{sweden14} \R\ package}
 
 \begin{itemize}
-\item Sweden 1969--2014
+\item Sweden 1968--2014 (from \emp{Statistics Sweden})
 \item \emp{Population} by age, sex, and year,
 \item \emp{Births} by mother's age, infant's sex, and year,
 \item \emp{Deaths} by age, sex, and year, and
@@ -355,6 +379,80 @@ res <- koll2()
 
 \url{https://github.com/goranbrostrom/sweden14/}
 
+
+\end{frame}
+
+\begin{frame}[fragile]{Population 1968 and 2014}
+
+<<popyr, echo = FALSE, fig.height = 5>>=
+source("R/pyra.R")
+pyra()
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Population 1968 and 2014, standardized}
+
+<<popyrper, echo = FALSE, fig.height = 5>>=
+source("R/pyra2.R")
+pyra2()
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Births}
+\scriptsize
+<<births, fig.height = 4.5>>=
+bir <- colSums(getBirths()) / 1000
+plot(1969:2014, bir, type = "s", ylim = c(0, 130), 
+     ylab = "Births (thousands)", xlab = "Year", col = "blue")
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Number of girl births per woman}
+
+<<girlbi, fig.height = 4.5, echo = FALSE>>=
+gir <- getBirths(sex = "females")
+wom <- getPop(sex = "females")[15:50, ]
+x <- colSums(gir / wom)
+plot(1969:2014, x, type = "s", col = "red", xlab = "Year", ylab = "Girl births per woman", ylim = c(0, 1.05))
+abline(h = 1, lty = 2)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Births, Deaths, and Net in-migration}
+
+<<deaths, fig.height = 4.6, echo = FALSE>>=
+x <- colSums(getDeaths()) / 1000
+y <- colSums(getInmig()) / 1000
+plot(1969:2014, x, type = "s", ylim = c(-10, 130), xlab = "Year", ylab = "Events (thousands)", col = "blue")
+lines(1969:2014, bir, type = "s", col = "red")
+lines(1969:2014, y, type = "s")
+text(1980, 110, "Births", col = "red")
+text(1990, 80, "Deaths", col = "blue")
+text(2009, 10, "Net in-migration")
+abline(h = 0)
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Prediction, no migration!}
+
+<<prednomig, echo = FALSE, fig.height = 5>>=
+source("R/run.R")
+x <- run()
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Prediction, migration as 2014}
+
+<<predmig, echo = FALSE, fig.height = 5>>=
+source("R/run2.R")
+x <- run2()
+@
 
 \end{frame}
 \begin{frame}[fragile]{Version!}

@@ -14,5 +14,18 @@ run <- function(inmig = TRUE){
     f.mort <- f.deaths / fem
     m.mort <- f.deaths / mal
     x <- predict(mal, fem, fert, m.mort, f.mort)
-    x
+    n <- 50
+    popa <- numeric(n)
+    popa[1] <- sum(x$males + x$females)
+    for (i in 2:n){
+       x <- predict(x$males, x$females, fert, m.mort, f.mort)
+       popa[i] <- sum(x$males + x$females)
+    }
+    plot(2015:2064, popa *10^(-6), type = "s", ylim = c(8, 10), 
+         ylab = "Pop (millions)", xlab = "Year", axes = FALSE, col = "blue")
+    axis(1, at = c(2015, 2026, 2050, 2065))
+    axis(2, at = c(8, 9, 10))
+    box()
+    abline(h = c(9, 10), lty = 2)
+    popa
 }
