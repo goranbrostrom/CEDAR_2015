@@ -2,7 +2,8 @@ predict <- function(males, females,
                     female.fert,
                     male.mort,
                     female.mort,
-                    inmigr = 0,
+                    male.inmigr = 0,
+                    female.inmigr = 0,
                     random = TRUE){
 
     ## Note that 'female.fert' must be full-length (0...100)!!
@@ -27,15 +28,18 @@ predict <- function(males, females,
         
         males.out <- males - male.deaths
         females.out <- females - female.deaths
-        males.out <- males.out + inmigr / 2
-        females.out <- females.out + inmigr / 2
-        male.births <- sum(rpois(length(female.fert), female.fert * females)) / 2
-        female.births <- male.births # sic!
+        males.out <- males.out + male.inmigr
+        females.out <- females.out + female.inmigr
+        births <- sum(rpois(length(female.fert), female.fert * females))
+        male.births <- 0.514 * births
+        female.births <- (1 - 0.514) * births
         males.out <- c(male.births, males.out)
         females.out <- c(female.births, females.out)
-        
-        males.out <- males.out[-length(males.out)]
-        females.out <- females.out[-length(females.out)]
+        n <- length(males.out)
+        males.out[n-1] <- sum(males.out[(n-1):n])
+        females.out[n-1] <- sum(females.out[(n-1):n]) 
+        males.out <- males.out[-n]
+        females.out <- females.out[-n]
 
     }else{# non-randomly
         male.deaths <- male.mort * males
@@ -43,17 +47,21 @@ predict <- function(males, females,
         
         males.out <- males - male.deaths
         females.out <- females - female.deaths
-        males.out <- males.out + inmigr / 2
-        females.out <- females.out + inmigr / 2
-        male.births <- sum(female.fert * females) / 2
-        female.births <- male.births # sic!
+        males.out <- males.out + male.inmigr
+        females.out <- females.out + female.inmigr
+        births <- sum(female.fert * females)
+        male.births <- 0.514 * births
+        female.births <- (1 - 0.514) * births
         males.out <- c(male.births, males.out)
         females.out <- c(female.births, females.out)
-        
-        males.out <- males.out[-length(males.out)]
-        females.out <- females.out[-length(females.out)]
+        n <- length(males.out)
+        males.out[n-1] <- sum(males.out[(n-1):n])
+        females.out[n-1] <- sum(males.out[(n-1):n])
+        males.out <- males.out[-n]
+        females.out <- females.out[-n]
 
     } 
-    
+    names(males.out) <- 0:100
+    names(females.out) <- 0:100
     list(males = males.out, females = females.out)
 }    
