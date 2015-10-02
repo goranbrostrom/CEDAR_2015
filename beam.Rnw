@@ -455,6 +455,45 @@ x <- run2()
 @
 
 \end{frame}
+
+\begin{frame}[fragile]{Age distribution of in-migrants 2014}
+
+<<agedistin, echo = FALSE, fig.height = 4.5>>=
+mal <- getInmig(sex = "males", years = 2014)
+femal <- getInmig(sex = "females", years = 2014)
+plot(0:100, mal, type = "s", col = "blue", xlab = "Age", ylab = "Frequency")
+lines(0:100, femal, type = "s", col = "red")
+abline(h = 0, v = 0)
+text(20, 300, "Women", col = "red")
+text(50, 500, "Men", col = "blue")
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{In-migration and population size}
+
+<<inmpop, fig.height = 4.5, echo = FALSE>>=
+popu <- colSums(getPop(sex = "all")) * 10^(-6)
+inm <- colSums(getInmig(sex = "all")) * 10^(-6)
+plot(1969:2014, popu, type = "s", col = "blue", ylim = c(0, 10), 
+     ylab = "Millions", xlab = "Year")
+abline(h = 0)
+lines(1969:2014, inm, type = "s", col = "red")
+text(1980, 6, "Population", col = "blue")
+text(1980, 1, "Net in-migration", col = "red")
+@
+
+\end{frame}
+
+\begin{frame}[fragile]{Relative in-migration}
+
+<<relinm, echo = FALSE, fig.height = 4.5>>=
+plot(1969:2014, inm / popu * 100, type = "s", xlab = "Year", ylab = "Per cent", col = "blue")
+abline(h = 0)
+@
+
+\end{frame}
+
 \begin{frame}[fragile]{Version!}
 
 \tiny
